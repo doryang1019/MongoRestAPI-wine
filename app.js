@@ -6,10 +6,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cors())
 
-
+const http = require('http');
 
 app.get("/", cors(), (req, res) => {
-    // res.json("hihi");
+    res.json("hihi");
 })
 
 app.get("/api/products/all", async (req, res) => {
@@ -124,9 +124,9 @@ app.post('/api/orders', async (req, res) => {
         res.status(500).json({ error: "Internal server error" + err });
     }
 })
-
-app.listen(8000, () => {
-    console.log("port connected");
+const server = http.createServer(app);
+server.listen(8000, () => {
+    console.log(`port connected!`);
 });
 
 
