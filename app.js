@@ -84,7 +84,6 @@ app.post("/signup", async (req, res) => {
     }
 
 });
-
 app.post('/api/orders/processing', async (req, res) => {
     try {
         const result = await collection.order.find();
@@ -102,9 +101,43 @@ app.post('/api/orders/processing', async (req, res) => {
 
 })
 
+app.put('/api/orders/checkout', async (req, res) => {
+    try {
+        const result = await collection.order.find({status: "Pending"});
+        let sum = 0;
+
+        for (const order of result) {
+            var filter = { _id: order._id };
+            console.log(order);
+            var update = { $set: { status: "Checkout" } };
+            sum += order.totalPrice;
+            await collection.order.updateOne(filter, update);
+        }
+
+        const history = new collection.history({
+            totalPrice: sum, createdAt: new Date()
+        });
+        await history.save();
+        res.json("Success");
+    } catch (err) {
+        res.status(500).json({ error: "Internal server error: " + err });
+    }
+
+})
+
 app.get('/api/orders', async (req, res) => {
     try{
-        const result = await collection.order.find({status: "Processing"}).sort({createdAt: -1});
+        const result = await collection.order.find({status: "Pending"}).sort({createdAt: -1});
+        console.log(result.length);
+        res.json(result);
+    }catch(err) {
+        res.status(500).json({ error: "Internal server error" + err });
+    }
+})
+
+app.get('/api/history', async (req, res) => {
+    try{
+        const result = await collection.history.find().sort({createdAt: -1});
         res.json(result);
     }catch(err) {
         res.status(500).json({ error: "Internal server error" + err });

@@ -32,6 +32,16 @@ const productSchema = new mongoose.Schema({
     price: Number,
   });
 
+const orderHistory = new mongoose.Schema({
+    totalPrice : {
+        type: Number,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    }
+
+});
 
 const orderSchema = new mongoose.Schema({
     email: String,
@@ -47,7 +57,6 @@ const orderSchema = new mongoose.Schema({
     quantity: Number,
     status: {
         type: String,
-        enum: ['Pending', 'Processing', 'Shipped', 'Delivered'],
         default: 'Pending'
     },
     createdAt: {
@@ -71,10 +80,11 @@ const wines = [
 const user = mongoose.model("User",newSchema);
 const order = mongoose.model("Order", orderSchema);
 const product = mongoose.model("Product", productSchema);
+const history = mongoose.model("OrderHistory", orderHistory);
 product.deleteMany({}).then(() => {
     console.log("drop all the product data first");
     product.insertMany(wines)
     .then(() => console.log("insert success"))
     .catch((err) => console.log("error"));
 });
-module.exports= {user, order, product}
+module.exports= {user, order, product, history}
